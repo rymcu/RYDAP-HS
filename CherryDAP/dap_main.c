@@ -644,7 +644,7 @@ __WEAK void chry_dap_usb2uart_uart_config_callback(struct cdc_line_coding *line_
 void chry_dap_usb2uart_uart_send_complete(void)
 {
     uint32_t size;
-    uint8_t *buffer;
+    //uint8_t *buffer;
 
     chry_ringbuffer_linear_read_setup(&g_usbrx, &size);
     chry_ringbuffer_linear_read_done(&g_usbrx, size);

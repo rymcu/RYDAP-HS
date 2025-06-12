@@ -61,7 +61,7 @@ main-build: RYDAP-HS.elf secondary-outputs
 
 # Tool invocations
 RYDAP-HS.elf: $(OBJS) $(USER_OBJS)
-	@	riscv-none-embed-gcc -march=rv32imacxw -mabi=ilp32 -msmall-data-limit=8 -msave-restore -fmax-errors=20 -Os -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common -Wunused -Wuninitialized -g -T "e:/RYMCU/ch32/RYDAP-HS/Ld/Link.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"RYDAP-HS.map" --specs=nano.specs --specs=nosys.specs -o "RYDAP-HS.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	@	riscv-none-embed-gcc -march=rv32imacxw -mabi=ilp32 -msmall-data-limit=8 -msave-restore -fmax-errors=20 -Os -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common -Wunused -Wuninitialized -g -T "e:/RYMCU/github/RYDAP-HS/Ld/Link.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"RYDAP-HS.map" --specs=nano.specs --specs=nosys.specs -o "RYDAP-HS.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 RYDAP-HS.hex: RYDAP-HS.elf
 	@	riscv-none-embed-objcopy -O ihex "RYDAP-HS.elf" "RYDAP-HS.hex"
 RYDAP-HS.lst: RYDAP-HS.elf

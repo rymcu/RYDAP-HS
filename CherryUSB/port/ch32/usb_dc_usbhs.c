@@ -250,19 +250,24 @@ void USBD_IRQHandler(void)
     uint32_t ep_idx, token, write_count, read_count;
     uint8_t intflag = 0;
 
-    intflag = USBHS_DEVICE->INT_FG;
+    intflag = USBHS_DEVICE->INT_FG;//1.读中断标志寄存器，获取中断类型（传输完成/设置请求/连接检测）
 
-    if (intflag & USBHS_TRANSFER_FLAG) {
+    if (intflag & USBHS_TRANSFER_FLAG) //2.传输完成
+    {
         ep_idx = (USBHS_DEVICE->INT_ST) & MASK_UIS_ENDP;
         token = (((USBHS_DEVICE->INT_ST) & MASK_UIS_TOKEN) >> 4) & 0x03;
 
-        if (token == PID_IN) {
-            if (ep_idx == 0x00) {
+        if (token == PID_IN)//2.1 IN 令牌处理（主机读取数据）
+        {
+            if (ep_idx == 0x00) //2.1.1 端点0数据
+            {
+                //数据没发送完继续发送
                 if (g_ch32_usbhs_udc.in_ep[ep_idx].xfer_len > g_ch32_usbhs_udc.in_ep[ep_idx].ep_mps) {
                     g_ch32_usbhs_udc.in_ep[ep_idx].xfer_len -= g_ch32_usbhs_udc.in_ep[ep_idx].ep_mps;
                     g_ch32_usbhs_udc.in_ep[ep_idx].actual_xfer_len += g_ch32_usbhs_udc.in_ep[ep_idx].ep_mps;
                     ep0_tx_data_toggle ^= 1;
-                } else {
+                } else 
+                {
                     g_ch32_usbhs_udc.in_ep[ep_idx].actual_xfer_len += g_ch32_usbhs_udc.in_ep[ep_idx].xfer_len;
                     g_ch32_usbhs_udc.in_ep[ep_idx].xfer_len = 0;
                     ep0_tx_data_toggle = true;
@@ -270,24 +275,25 @@ void USBD_IRQHandler(void)
 
                 usbd_event_ep_in_complete_handler(ep_idx | 0x80, g_ch32_usbhs_udc.in_ep[ep_idx].actual_xfer_len);
 
-                if (g_ch32_usbhs_udc.dev_addr > 0) {
+                if (g_ch32_usbhs_udc.dev_addr > 0) {//设置地址阶段，设置完了清零，防止重复设置
                     USBHS_DEVICE->DEV_AD = g_ch32_usbhs_udc.dev_addr & 0xff;
                     g_ch32_usbhs_udc.dev_addr = 0;
                 }
-
+                //判断是否包含数据阶段，并且方向为主机到设备（OUT），则指定ep0 dma接收地址，并允许中断
                 if (g_ch32_usbhs_udc.setup.wLength && ((g_ch32_usbhs_udc.setup.bmRequestType & USB_REQUEST_DIR_MASK) == USB_REQUEST_DIR_OUT)) {
                     /* In status, start reading setup */
                     USBHS_DEVICE->UEP0_DMA = (uint32_t)&g_ch32_usbhs_udc.setup;
                     USBHS_DEVICE->UEP0_RX_CTRL = USBHS_EP_R_RES_ACK;
                     ep0_tx_data_toggle = true;
 
-                } else if (g_ch32_usbhs_udc.setup.wLength == 0) {
+                } else if (g_ch32_usbhs_udc.setup.wLength == 0) {//无数据阶段处理方式一样
                     /* In status, start reading setup */
                     USBHS_DEVICE->UEP0_DMA = (uint32_t)&g_ch32_usbhs_udc.setup;
                     USBHS_DEVICE->UEP0_RX_CTRL = USBHS_EP_R_RES_ACK;
                     ep0_tx_data_toggle = true;
                 }
-            } else {
+            } else//2.1.2 非端点0数据
+             {
                 USB_SET_TX_CTRL(ep_idx, (USB_GET_TX_CTRL(ep_idx) & ~(USBHS_EP_T_RES_MASK | USBHS_EP_T_TOG_MASK)) | USBHS_EP_T_RES_NAK | USBHS_EP_T_TOG_0);
 
                 if (g_ch32_usbhs_udc.in_ep[ep_idx].xfer_len > g_ch32_usbhs_udc.in_ep[ep_idx].ep_mps) {
@@ -312,7 +318,8 @@ void USBD_IRQHandler(void)
                     usbd_event_ep_in_complete_handler(ep_idx | 0x80, g_ch32_usbhs_udc.in_ep[ep_idx].actual_xfer_len);
                 }
             }
-        } else if (token == PID_OUT) {
+        } else if (token == PID_OUT) //2.2 OUT 令牌处理（主机发送数据）
+        {
             if (ep_idx == 0x00) {
                 read_count = USBHS_DEVICE->RX_LEN;
 
@@ -348,30 +355,33 @@ void USBD_IRQHandler(void)
                 }
             }
         }
-        USBHS_DEVICE->INT_FG = USBHS_TRANSFER_FLAG;
-    } else if (intflag & USBHS_SETUP_FLAG) {
-        usbd_event_ep0_setup_complete_handler((uint8_t *)&g_ch32_usbhs_udc.setup);
-        USBHS_DEVICE->INT_FG = USBHS_SETUP_FLAG;
-    } else if (intflag & USBHS_DETECT_FLAG) {
-        USBHS_DEVICE->ENDP_CONFIG = USBHS_EP0_T_EN | USBHS_EP0_R_EN;
+        USBHS_DEVICE->INT_FG = USBHS_TRANSFER_FLAG;//清除中断标志
+    } else if (intflag & USBHS_SETUP_FLAG) //3.设置请求
+    {
+        usbd_event_ep0_setup_complete_handler((uint8_t *)&g_ch32_usbhs_udc.setup);//当接收到设置包（SETUP 事务）时，触发回调函数处理 USB 请求（如获取描述符、设置地址等）
+        USBHS_DEVICE->INT_FG = USBHS_SETUP_FLAG;//清除中断标志位
+    } else if (intflag & USBHS_DETECT_FLAG)//4.连接检测
+     {
+        USBHS_DEVICE->ENDP_CONFIG = USBHS_EP0_T_EN | USBHS_EP0_R_EN;//启动EP0接收和发送通道
 
         USBHS_DEVICE->UEP0_TX_LEN = 0;
-        USBHS_DEVICE->UEP0_TX_CTRL = USBHS_EP_T_RES_NAK;
+        USBHS_DEVICE->UEP0_TX_CTRL = USBHS_EP_T_RES_NAK;//EP0发送设置为NAK，长度设置为0（初始化阶段不主动发送数据，需要等待主机请求）
 
-        ep0_tx_data_toggle = true;
+        ep0_tx_data_toggle = true;//重置EP0的发送接收toggle位，通常为DATA0
         ep0_rx_data_toggle = true;
 
-        for (uint8_t ep_idx = 1; ep_idx < USB_NUM_BIDIR_ENDPOINTS; ep_idx++) {
+        for (uint8_t ep_idx = 1; ep_idx < USB_NUM_BIDIR_ENDPOINTS; ep_idx++) //初始化端点，禁用发送和接收功能（在枚举完成前，禁用所有非EP0端点）
+        {
             USB_SET_TX_LEN(ep_idx, 0);
             USB_SET_TX_CTRL(ep_idx, USBHS_EP_T_AUTOTOG | USBHS_EP_T_RES_NAK); // autotog does not work
             USB_SET_RX_CTRL(ep_idx, USBHS_EP_R_AUTOTOG | USBHS_EP_R_RES_NAK);
             epx_tx_data_toggle[ep_idx - 1] = false;
         }
 
-        memset(&g_ch32_usbhs_udc, 0, sizeof(struct ch32_usbhs_udc));
-        usbd_event_reset_handler();
-        USBHS_DEVICE->UEP0_DMA = (uint32_t)&g_ch32_usbhs_udc.setup;
-        USBHS_DEVICE->UEP0_RX_CTRL = USBHS_EP_R_RES_ACK;
-        USBHS_DEVICE->INT_FG = USBHS_DETECT_FLAG;
+        memset(&g_ch32_usbhs_udc, 0, sizeof(struct ch32_usbhs_udc));//重置USB设备
+        usbd_event_reset_handler();//通知上层应用，设备已复位
+        USBHS_DEVICE->UEP0_DMA = (uint32_t)&g_ch32_usbhs_udc.setup;//将 EP0 的 DMA 缓冲区地址指向设置请求结构体（g_ch32_usbhs_udc.setup）
+        USBHS_DEVICE->UEP0_RX_CTRL = USBHS_EP_R_RES_ACK;//将 EP0 接收控制寄存器设为 ACK 状态，允许接收数据
+        USBHS_DEVICE->INT_FG = USBHS_DETECT_FLAG;//清除 USB 检测中断标志，结束当前中断处理
     }
 }

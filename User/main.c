@@ -10,45 +10,19 @@
 * microcontroller manufactured by Nanjing Qinheng Microelectronics.
 *******************************************************************************/
 
-/*
- *@Note
- USART Print debugging routine:
- USART1_Tx(PA9).
- This example demonstrates using USART1(PA9) as a print debug port output.
-
-*/
+/******************************************************************************
+* 用户自行实现内容：
+*
+* 1.dap_main.c/h
+* 2.DAP_config.h
+* 3.usb_config.h
+* 4.usb2uart.c/h
+* 5.main.c
+*******************************************************************************/
 
 #include "debug.h"
 #include "dap_main.h"
 #include "usb2uart.h"
-
-
-/* Global typedef */
-
-/* Global define */
-
-/* Global Variable */
-
-
-void enable_power_output(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure = {0};
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    GPIO_ResetBits(GPIOA, GPIO_Pin_5);
-    GPIO_ResetBits(GPIOB, GPIO_Pin_12);
-}
 
 void USBHS_RCC_Init( void )
 {
@@ -105,17 +79,11 @@ int main(void)
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
-	enable_power_output();//GPIO设置
-	//USART_Printf_Init(115200);
 
 	uartx_preinit();//串口GPIO中断等设置
     chry_dap_init();//初始化DAP,完成USB Device设备描述符，端点等的配置
     while (!usb_device_is_configured()) {
     }//等待USB完成枚举配置完成
-
-//	printf("SystemClk:%d\r\n",SystemCoreClock);
-//	printf( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
-//	printf("This is printf example\r\n");
 
 	while(1)//进入DAP数据处理和串口数据处理
     {
