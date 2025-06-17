@@ -156,7 +156,9 @@
 							"${project}/CherryUSB/port/ch32",
 							"${project}/CherryUSB/common",
 							"${project}/CherryRB",
-							"${project}/CherryDAP"
+							"${project}/CherryDAP",
+							"${project}/fatfs",
+							"${project}/Offline"
 						],
 						"include_system_paths": [],
 						"include_files": []
@@ -248,7 +250,7 @@
 						"do_not_use_syscalls": true,
 						"verbose": false,
 						"use_wch_printffloat": false,
-						"use_wch_printf": false,
+						"use_wch_printf": true,
 						"use_iqmath": false,
 						"other_linker_flags": ""
 					}
@@ -284,7 +286,7 @@
 						"do_not_use_syscalls": true,
 						"verbose": false,
 						"use_wch_printffloat": false,
-						"use_wch_printf": false,
+						"use_wch_printf": true,
 						"use_iqmath": false,
 						"other_linker_flags": ""
 					}

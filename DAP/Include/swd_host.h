@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include "debug_cm.h"
-
+#include "flash_blob.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -360,9 +360,10 @@ uint8_t swd_read_memory(uint32_t address, uint8_t *data, uint32_t size);
 uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
 uint8_t swd_read_core_register(uint32_t n, uint32_t *val);
 uint8_t swd_write_core_register(uint32_t n, uint32_t val);
-//uint8_t swd_flash_syscall_exec(const program_syscall_t *sysCallParam, uint32_t entry, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4, flash_algo_return_t return_type);
-//uint8_t swd_set_target_state_hw(target_state_t state);
-//uint8_t swd_set_target_state_sw(target_state_t state);
+//hugh 取消下面3个函数注释，离线下载需要使用,添加#include "flash_blob.h"
+uint8_t swd_flash_syscall_exec(const program_syscall_t *sysCallParam, uint32_t entry, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4, flash_algo_return_t return_type);
+uint8_t swd_set_target_state_hw(target_state_t state);
+uint8_t swd_set_target_state_sw(target_state_t state);
 uint8_t swd_transfer_retry(uint32_t req, uint32_t *data);
 void int2array(uint8_t *res, uint32_t data, uint8_t len);
 void swd_set_reset_connect(SWD_CONNECT_TYPE type);

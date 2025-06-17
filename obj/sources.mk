@@ -31,6 +31,9 @@ CherryUSB/port/ch32 \
 Core \
 DAP/Source \
 Debug \
+Offline \
+Offline/algo \
 Peripheral/src \
 Startup \
 User \
+fatfs \

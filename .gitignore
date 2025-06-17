@@ -23,6 +23,8 @@
 .pio
 .DS_Store
 .vscode
+obj/*
+
 
 
 
