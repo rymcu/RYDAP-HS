@@ -1,7 +1,7 @@
 /* Flash OS Routines (Automagically Generated)
  * Copyright (c) 2009-2015 ARM Limited
  */
-#include "flash_blob.h"
+#include "dap_flash.h"
 
 /******************************************
 *              stm32F1??§Ö???????
@@ -25,7 +25,7 @@ static const uint32_t flash_code[] = {
     0xCDEF89AB, 0x40003000, 0x00000000
 };
 
-const program_target_t flash_algo_F10x = {
+ program_target_t flash_algo_F10x = {
     0x20000021,  // Init
     0x20000053,  // UnInit
     0x20000065,  // EraseChip

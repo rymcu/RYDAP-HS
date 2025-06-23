@@ -601,7 +601,7 @@ void chry_dap_usb2uart_handle(void)
         DMA_Cmd(DMA1_Channel3, DISABLE);
         chry_ringbuffer_write(&g_uartrx, RxBuffer1, 512 - DMA_GetCurrDataCounter(DMA1_Channel3));
         DMA_SetCurrDataCounter(DMA1_Channel3, 512);
-        USART_ClearFlag(USART3 ,USART_FLAG_ORE);
+        USART_ClearFlag(USART2 ,USART_FLAG_ORE);
         DMA_Cmd(DMA1_Channel3, ENABLE);
     }
 
@@ -620,8 +620,8 @@ void chry_dap_usb2uart_handle(void)
         /* start first transfer */
         buffer = chry_ringbuffer_linear_read_setup(&g_usbrx, &size);
         for (index = 0; index < size; index++) {
-            while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-            USART_SendData(USART3, buffer[index]);
+            while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+            USART_SendData(USART2, buffer[index]);
         }
         chry_ringbuffer_linear_read_done(&g_usbrx, size);
     }

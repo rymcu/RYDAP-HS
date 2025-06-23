@@ -27,9 +27,10 @@
 
 /* DEBUG UATR Definition */
 #ifndef DEBUG
-#define DEBUG   DEBUG_UART3
+#define DEBUG   DEBUG_UART1
 #endif
 
+//#define RY_NO_DEBUG  //屏蔽所有调试信息
 
 void Delay_Init(void);
 void Delay_Us (uint32_t n);

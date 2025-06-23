@@ -5,9 +5,9 @@
 		"chipInfo": {
 			"vendor": "WCH",
 			"toolchain": "RISC-V",
-			"series": "CH32V305",
+			"series": "CH32V307",
 			"rtos": "NoneOS",
-			"mcu": "CH32V305FBP6",
+			"mcu": "CH32V307VCT6",
 			"description": "Website: http://www.wch.cn/products/CH32V307.html?\\nROM(byte): 128K, SRAM(byte): 32K, CHIP PINS: 20, GPIO PORTS: 17.\\nWCH CH32V3 series of mainstream MCUs covers the needs of a large variety of applications in the industrial,medical and consumer markets. High performance with first-class peripherals and low-power,low-voltage operation is paired with a high level of integration at accessible prices with a simple architecture and easy-to-use tools.",
 			"link": "WCH-Link",
 			"peripheral_version": "2.8"
@@ -158,7 +158,8 @@
 							"${project}/CherryRB",
 							"${project}/CherryDAP",
 							"${project}/fatfs",
-							"${project}/Offline"
+							"${project}/Offline",
+							"${project}/bsp"
 						],
 						"include_system_paths": [],
 						"include_files": []
@@ -249,8 +250,8 @@
 						"use_float_with_nano_scanf": false,
 						"do_not_use_syscalls": true,
 						"verbose": false,
-						"use_wch_printffloat": false,
-						"use_wch_printf": true,
+						"use_wch_printffloat": true,
+						"use_wch_printf": false,
 						"use_iqmath": false,
 						"other_linker_flags": ""
 					}
@@ -285,8 +286,8 @@
 						"use_float_with_nano_scanf": false,
 						"do_not_use_syscalls": true,
 						"verbose": false,
-						"use_wch_printffloat": false,
-						"use_wch_printf": true,
+						"use_wch_printffloat": true,
+						"use_wch_printf": false,
 						"use_iqmath": false,
 						"other_linker_flags": ""
 					}
@@ -621,14 +622,14 @@
 		"target_path": "obj\\RYDAP-HS.hex",
 		"clkSpeed": "High",
 		"debug_interface_mode": "1-wire serial",
-		"erase": false,
+		"erase": true,
 		"program": true,
 		"verify": true,
 		"reset": true,
 		"sdiPrintf": false,
 		"disablepowerout": false,
-		"clearcodeflash": false,
-		"disablecodeprotect": false,
+		"clearcodeflash": true,
+		"disablecodeprotect": true,
 		"exepath": "",
 		"exearguments": ""
 	},

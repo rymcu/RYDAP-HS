@@ -36,4 +36,5 @@ Offline/algo \
 Peripheral/src \
 Startup \
 User \
+bsp \
 fatfs \

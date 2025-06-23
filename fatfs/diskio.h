@@ -12,6 +12,7 @@ extern "C" {
 /* Status of Disk Functions */
 typedef BYTE	DSTATUS;
 
+DWORD get_fattime (void);
 /* Results of Disk Functions */
 typedef enum {
 	RES_OK = 0,		/* 0: Successful */
@@ -69,6 +70,8 @@ DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 #define ATA_GET_REV			20	/* Get F/W revision */
 #define ATA_GET_MODEL		21	/* Get model name */
 #define ATA_GET_SN			22	/* Get serial number */
+
+static volatile DSTATUS Stat = STA_NOINIT;//hugh
 
 #ifdef __cplusplus
 }

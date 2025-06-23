@@ -1,7 +1,7 @@
 /* Flash OS Routines (Automagically Generated)
  * Copyright (c) 2009-2015 ARM Limited
  */
-#include "flash_blob.h"
+#include "dap_flash.h"
 
 static const uint32_t flash_code[] = {
     0xE00ABE00, 0x062D780D, 0x24084068, 0xD3000040, 0x1E644058, 0x1C49D1FA, 0x2A001E52, 0x4770D1F2,
@@ -18,7 +18,7 @@ static const uint32_t flash_code[] = {
     0x00000201, 0x00000000
 };
 
-const program_target_t flash_algo_F429 = {
+program_target_t flash_algo_F429 = {
     0x2000003D,  // Init
     0x2000006B,  // UnInit
     0x20000079,  // EraseChip

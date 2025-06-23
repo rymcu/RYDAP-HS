@@ -7,138 +7,69 @@
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
-#include "ff.h"			/* Obtains integer types */
-#include "diskio.h"		/* Declarations of disk functions */
-
+#include "ff.h"     /* Obtains integer types */
+#include "diskio.h" /* Declarations of disk functions */
+#include "bsp_spi_flash.h" //hugh
 /* Definitions of physical drive number for each drive */
-#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
-
+#define DEV_RAM 0 /* Example: Map Ramdisk to physical drive 0 */
+#define DEV_MMC 1 /* Example: Map MMC/SD card to physical drive 1 */
+#define DEV_USB 2 /* Example: Map USB MSD to physical drive 2 */
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
 /*-----------------------------------------------------------------------*/
 
 DSTATUS disk_status (
-	BYTE pdrv		/* Physical drive nmuber to identify the drive */
-)
-{
-	DSTATUS stat;
-	int result;
-
-	switch (pdrv) {
-	case DEV_RAM :
-		result = RAM_disk_status();
-
-		// translate the reslut code here
-
-		return stat;
-
-	case DEV_MMC :
-		result = MMC_disk_status();
-
-		// translate the reslut code here
-
-		return stat;
-
-	case DEV_USB :
-		result = USB_disk_status();
-
-		// translate the reslut code here
-
-		return stat;
-	}
-	return STA_NOINIT;
+    BYTE pdrv /* Physical drive nmuber to identify the drive */
+) {
+    //printf ("disk_status\r\n");
+    Stat = STA_NOINIT;
+    if (pdrv == 0)
+        Stat = RES_OK;
+    return Stat;
 }
-
-
 
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 /*-----------------------------------------------------------------------*/
 
 DSTATUS disk_initialize (
-	BYTE pdrv				/* Physical drive nmuber to identify the drive */
-)
-{
-	DSTATUS stat;
-	int result;
-
-	switch (pdrv) {
-	case DEV_RAM :
-		result = RAM_disk_initialize();
-
-		// translate the reslut code here
-
-		return stat;
-
-	case DEV_MMC :
-		result = MMC_disk_initialize();
-
-		// translate the reslut code here
-
-		return stat;
-
-	case DEV_USB :
-		result = USB_disk_initialize();
-
-		// translate the reslut code here
-
-		return stat;
-	}
-	return STA_NOINIT;
+    BYTE pdrv /* Physical drive nmuber to identify the drive */
+) {
+    //printf ("disk_initialize\r\n");
+    Stat = STA_NOINIT;
+    switch (pdrv) {
+    case 1:  // SD
+        Stat = RES_PARERR;
+        break;
+    case 0:
+        Flash_Init();printf ("SPI flash W25Qx init done!\r\n");
+        Stat = RES_OK;
+        break;
+    default:
+        Stat = RES_PARERR;
+    }
+    return Stat;
 }
-
-
 
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
 DRESULT disk_read (
-	BYTE pdrv,		/* Physical drive nmuber to identify the drive */
-	BYTE *buff,		/* Data buffer to store read data */
-	LBA_t sector,	/* Start sector in LBA */
-	UINT count		/* Number of sectors to read */
-)
-{
-	DRESULT res;
-	int result;
-
-	switch (pdrv) {
-	case DEV_RAM :
-		// translate the arguments here
-
-		result = RAM_disk_read(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-
-	case DEV_MMC :
-		// translate the arguments here
-
-		result = MMC_disk_read(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-
-	case DEV_USB :
-		// translate the arguments here
-
-		result = USB_disk_read(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-	}
-
-	return RES_PARERR;
+    BYTE pdrv,    /* Physical drive nmuber to identify the drive */
+    BYTE *buff,   /* Data buffer to store read data */
+    LBA_t sector, /* Start sector in LBA */
+    UINT count    /* Number of sectors to read */
+) {
+    //printf ("disk_read\r\n");
+    if (pdrv == 0) {
+        Flash_ReadData (sector * FLASH_SECTOR_SIZE, (uint8_t *)buff, count * FLASH_SECTOR_SIZE);
+        return RES_OK;
+    } else {
+        return RES_PARERR;
+    }
 }
-
-
 
 /*-----------------------------------------------------------------------*/
 /* Write Sector(s)                                                       */
@@ -147,45 +78,19 @@ DRESULT disk_read (
 #if FF_FS_READONLY == 0
 
 DRESULT disk_write (
-	BYTE pdrv,			/* Physical drive nmuber to identify the drive */
-	const BYTE *buff,	/* Data to be written */
-	LBA_t sector,		/* Start sector in LBA */
-	UINT count			/* Number of sectors to write */
-)
-{
-	DRESULT res;
-	int result;
-
-	switch (pdrv) {
-	case DEV_RAM :
-		// translate the arguments here
-
-		result = RAM_disk_write(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-
-	case DEV_MMC :
-		// translate the arguments here
-
-		result = MMC_disk_write(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-
-	case DEV_USB :
-		// translate the arguments here
-
-		result = USB_disk_write(buff, sector, count);
-
-		// translate the reslut code here
-
-		return res;
-	}
-
-	return RES_PARERR;
+    BYTE pdrv,        /* Physical drive nmuber to identify the drive */
+    const BYTE *buff, /* Data to be written */
+    LBA_t sector,     /* Start sector in LBA */
+    UINT count        /* Number of sectors to write */
+) {
+    //printf ("disk_write\r\n");
+    if (pdrv == 0) {
+        Flash_SectorErase (sector * FLASH_SECTOR_SIZE);
+        FLASH_WriteData (sector * FLASH_SECTOR_SIZE, (uint8_t *)buff, count * FLASH_SECTOR_SIZE);
+        return RES_OK;
+    } else {
+        return RES_PARERR;
+    }
 }
 
 #endif
@@ -196,34 +101,40 @@ DRESULT disk_write (
 /*-----------------------------------------------------------------------*/
 
 DRESULT disk_ioctl (
-	BYTE pdrv,		/* Physical drive nmuber (0..) */
-	BYTE cmd,		/* Control code */
-	void *buff		/* Buffer to send/receive control data */
-)
-{
-	DRESULT res;
-	int result;
+    BYTE pdrv, /* Physical drive nmuber (0..) */
+    BYTE cmd,  /* Control code */
+    void *buff /* Buffer to send/receive control data */
+) {
+    //printf ("disk_ioctl\r\n");
+    DRESULT res = RES_ERROR;
 
-	switch (pdrv) {
-	case DEV_RAM :
-
-		// Process of the command for the RAM drive
-
-		return res;
-
-	case DEV_MMC :
-
-		// Process of the command for the MMC/SD card
-
-		return res;
-
-	case DEV_USB :
-
-		// Process of the command the USB drive
-
-		return res;
-	}
-
-	return RES_PARERR;
+    if (pdrv == 0) {
+        switch (cmd) {
+        case CTRL_SYNC:
+            res = RES_OK;
+            break;
+        case GET_SECTOR_SIZE:
+            *(DWORD *)buff = FLASH_SECTOR_SIZE;
+            res = RES_OK;
+            break;
+        case GET_SECTOR_COUNT:
+            *(DWORD *)buff = FLASH_SECTOR_COUNT;
+            res = RES_OK;
+            break;
+        case GET_BLOCK_SIZE:
+            *(DWORD *)buff = 1;
+            res = RES_OK;
+            break;
+        default:
+            res = RES_PARERR;
+        }
+    } else {
+        res = RES_PARERR;
+    }
+    return res;
 }
 
+// User defined function to give a current time to fatfs module
+DWORD get_fattime (void) {
+    return 0;
+}

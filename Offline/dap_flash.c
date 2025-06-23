@@ -3,13 +3,14 @@
  * @brief   ???SWDЭ???MCU??FLASH???
  */
 
-#include "SWD_flash.h"
+#include "dap_flash.h"
+#include "swd_host.h"
 //每添加一个类型MCU，增加一个变量
-extern const program_target_t flash_algo_F10x;
-extern const program_target_t flash_algo_F429;
+extern  program_target_t flash_algo_F10x;
+extern  program_target_t flash_algo_F429;
 program_target_t* pflash_algo;
 
-void Findflash(MCU_Type_t McuType)
+void dap_offline_algo_select(MCU_Type_t McuType)
 {
     switch (McuType) {
         case F103x:

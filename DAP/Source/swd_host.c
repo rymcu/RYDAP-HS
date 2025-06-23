@@ -98,7 +98,7 @@ uint8_t swd_transfer_retry(uint32_t req, uint32_t *data)
 
     for (i = 0; i < MAX_SWD_RETRY; i++) {
         ack = SWD_Transfer(req, data);
-
+        
         // if ack != WAIT
         if (ack != DAP_TRANSFER_WAIT) {
             return ack;
@@ -779,17 +779,17 @@ static uint8_t swd_read_idcode(uint32_t *id)
 
 
 uint8_t JTAG2SWD()
-{
+{   
     uint32_t tmp = 0;
 
     if (!swd_reset()) {
         return 0;
     }
-
+    
     if (!swd_switch(0xE79E)) {
         return 0;
     }
-
+    
     if (!swd_reset()) {
         return 0;
     }
@@ -797,7 +797,7 @@ uint8_t JTAG2SWD()
     if (!swd_read_idcode(&tmp)) {
         return 0;
     }
-
+    
     return 1;
 }
 
@@ -829,12 +829,12 @@ uint8_t swd_init_debug(void)
 //      if (g_target_family && g_target_family->target_before_init_debug) {
 //          g_target_family->target_before_init_debug();
 //      }
-
+        
         if (!JTAG2SWD()) {
             do_abort = 1;
             continue;
         }
-
+        
         if (!swd_clear_errors()) {
             do_abort = 1;
             continue;

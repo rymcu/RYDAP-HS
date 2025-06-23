@@ -3,10 +3,9 @@
 
 #include "ch32v30x.h"
 #include "dap_main.h"
-#include "usb2uart.h"
 
-#define UART_TX_PIN 11
-#define UART_RX_PIN 13
+#define UART_TX_PIN 2
+#define UART_RX_PIN 3
 
 #define UART_RX_DMA_BUF_SIZE (16 * 1024)
 

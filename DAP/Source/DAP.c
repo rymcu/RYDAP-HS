@@ -58,7 +58,7 @@ static const char DAP_FW_Ver [] = DAP_FW_VER;
 
 // Common clock delay calculation routine
 //   clock:    requested SWJ frequency in Hertz
-static void Set_Clock_Delay(uint32_t clock) {
+void Set_Clock_Delay(uint32_t clock) {
   uint32_t delay;
 
   if (clock >= MAX_SWJ_CLOCK(DELAY_FAST_CYCLES)) {
@@ -396,7 +396,7 @@ static uint32_t DAP_SWJ_Pins(const uint8_t *request, uint8_t *response) {
   return ((6U << 16) | 1U);
 }
 
-
+extern void set_swj_clock_frequency(uint32_t clock);
 // Process SWJ Clock command and prepare response
 //   request:  pointer to request data
 //   response: pointer to response data
@@ -406,6 +406,7 @@ static uint32_t DAP_SWJ_Clock(const uint8_t *request, uint8_t *response) {
 #if ((DAP_SWD != 0) || (DAP_JTAG != 0))
   uint32_t clock;
   uint32_t delay;
+  (void)delay;
 
   clock = (uint32_t)(*(request+0) <<  0) |
           (uint32_t)(*(request+1) <<  8) |
@@ -417,7 +418,11 @@ static uint32_t DAP_SWJ_Clock(const uint8_t *request, uint8_t *response) {
     return ((4U << 16) | 1U);
   }
 
+#if !defined(USE_SPI_SWD) && !defined(USE_SPI_JTAG)
   Set_Clock_Delay(clock);
+#else
+  set_swj_clock_frequency(clock);
+#endif
 
   *response = DAP_OK;
 #else
@@ -553,12 +558,12 @@ static uint32_t DAP_JTAG_Sequence(const uint8_t *request, uint8_t *response) {
 
   sequence_count = *request++;
   while (sequence_count--) {
-    sequence_info = *request++;
-    count = sequence_info & JTAG_SEQUENCE_TCK;
-    if (count == 0U) {
-      count = 64U;
-    }
-    count = (count + 7U) / 8U;
+      sequence_info = *request++;
+      count = sequence_info & JTAG_SEQUENCE_TCK;
+      if (count == 0U) {
+          count = 64U;
+      }
+      count = (count + 7U) / 8U;
 #if (DAP_JTAG != 0)
     JTAG_Sequence(sequence_info, request, response);
 #endif
