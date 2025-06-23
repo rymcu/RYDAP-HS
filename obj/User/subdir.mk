@@ -8,19 +8,22 @@ C_SRCS += \
 ../User/ch32v30x_it.c \
 ../User/main.c \
 ../User/system_ch32v30x.c \
-../User/usb2uart.c 
+../User/usb2uart.c \
+../User/user_fatfs.c 
 
 C_DEPS += \
 ./User/ch32v30x_it.d \
 ./User/main.d \
 ./User/system_ch32v30x.d \
-./User/usb2uart.d 
+./User/usb2uart.d \
+./User/user_fatfs.d 
 
 OBJS += \
 ./User/ch32v30x_it.o \
 ./User/main.o \
 ./User/system_ch32v30x.o \
-./User/usb2uart.o 
+./User/usb2uart.o \
+./User/user_fatfs.o 
 
 
 

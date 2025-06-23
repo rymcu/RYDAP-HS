@@ -4,66 +4,36 @@
 #define BeginAddr 0x08000000 //程序下载起始地址，由可执行文件决定
 
 uint8_t dap_offline_download (FATFS fs, FIL fnew, char *path, uint32_t McuType) {
-    uint8_t error, rData[PageSize];
+    uint8_t rData[PageSize];
     uint32_t readflag = 1;
     uint32_t addr = 0;
     UINT fnum;
 
-    printf ("dap_offline_download 1\r\n");
     dap_offline_algo_select (McuType);  // 选择对对应的MCU型号
-    for (int i = 0; i < PageSize; ++i) { rData[i] = 0x55; }
     // step 1
-    printf ("dap_offline_download step 1\r\n");
-    error = swd_init_debug();
-    printf ("dap_offline_download step 1.5\r\n");
-    if (!error)
-        return 5;
+    if(!swd_init_debug()) return 1;
     // step 2
-    printf ("dap_offline_download step 2\r\n");
-    error = target_flash_init (BeginAddr);
-    if (error)
-        return 6;
+    if(target_flash_init (BeginAddr)) return 2;
     // step 3
-    printf ("dap_offline_download step 3\r\n");
-    error = target_flash_erase_chip();
-    if (error)
-        return 7;
+    if(target_flash_erase_chip()) return 3;//此处可改为部分擦除
     // setp 4
-    printf ("dap_offline_download step 4\r\n");
-    Delay_Ms (100);
-    error = f_open (&fnew, path, FA_OPEN_EXISTING | FA_READ);
-    if (error)
-        return 77;
-     printf("download:%s(%0.2fKB)\r\n", path,(float)f_size(&fnew)/1024.0);
-    // HAL_GPIO_WritePin(GPIOC, LED0_Pin|LED1_Pin, GPIO_PIN_RESET);
-    while (readflag) {
-        error = f_read (&fnew, rData, PageSize, &fnum);
-        {
-            printf ("f_read = %d\r\n", fnum);
-            if (error)
-                return 88;
-            if (fnum < PageSize) {
-                readflag = 0;
-            }
-        }
-        error = target_flash_program_page (BeginAddr + addr, (uint8_t *)&rData[0], PageSize);
-        if (error)
-            return 8;
+    if(f_open (&fnew, path, FA_OPEN_EXISTING | FA_READ))return 4;
+    printf("download bin info:%s(%0.2fKB)\r\n", path,(float)f_size(&fnew)/1024.0);
+    //step 5
+    while (readflag) 
+    {
+        if(f_read (&fnew, rData, PageSize, &fnum)) return 5;
+        if (fnum < PageSize) readflag = 0;
+
+        if(target_flash_program_page (BeginAddr + addr, (uint8_t *)&rData[0], PageSize))return 55;
         addr += PageSize;
-        // readflag--;
-        printf ("readflag = %d\r\n", readflag);
-        // HAL_GPIO_TogglePin(GPIOC,LED0_Pin);
     }
     f_close (&fnew);  // 读取完毕，关闭文件。
-    // HAL_GPIO_WritePin(GPIOC, LED0_Pin|LED1_Pin, GPIO_PIN_SET);
-
-    // step 9
-    error = swd_init_debug();
-    if (!error)
-        return 9;
-    // step 10
-    swd_set_target_reset (0);  // 复位运行
-    printf ("dap_offline_download download ok\r\n");
+    // step 6
+    if(!swd_init_debug()) return 6;
+    // step 7
+    swd_set_target_reset(0);  // 复位运行
+    printf ("dap offline download ok\r\n");
     return 0;
 }
 
