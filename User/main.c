@@ -44,21 +44,26 @@ int main (void) {
     USART_Printf_Init (115200);  // printf串口初始化
 
     printf ("SystemClk:%dMHz,ChipID:%08X\r\n\r\n", SystemCoreClock/1000000, DBGMCU_GetCHIPID());//打印系统信息
-
+    
     fatfs_file_init();
-
+    if(load_setup())
+    {
+        printf("load setup error\r\n");
+        return 0;
+    }
+    printf("load setup ok\r\n");
     /**********************************dap_offline_download***************************/
     // rx_buff[1]:0-F103,1-F4xx
     // rx_buff[2]:NO. of bin from FatFs
     printf ("************dap_offline_download program begin!***************\r\n");
-    FatReadDirTest (2, FilePath);
+    FatReadDirTest (1, FilePath);
     printf ("FilePath:%s\r\n", FilePath);
     uint8_t error = dap_offline_download (fs, fnew, FilePath, F103x);  // McuType = 0,F103
     printf ("OffDAP!(%d)\r\n", error);
     printf ("************dap_offline_download program end!*****************\r\n");
     /********************************************************************************/
 
-    // RCC_APB2PeriphClockCmd (RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
+     RCC_APB2PeriphClockCmd (RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
     // GPIO_PinRemapConfig (GPIO_Remap_SWJ_Disable, ENABLE);
 
     uartx_preinit();  // 串口GPIO中断等设置

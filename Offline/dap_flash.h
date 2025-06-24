@@ -42,4 +42,8 @@ error_t target_flash_erase_sector(uint32_t addr);
 error_t target_flash_erase_chip(void);
 extern void dap_offline_algo_select(MCU_Type_t McuType);
 
+extern uint32_t flash_code1[83];
+extern uint32_t flash_code[100];
+extern program_target_t flash_algo_F429;
+extern program_target_t flash_algo_F10x;
 #endif // __SWD_FLASH_H__

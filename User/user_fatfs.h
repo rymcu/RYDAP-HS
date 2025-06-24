@@ -9,5 +9,5 @@ extern FIL fnew;
 
 void fatfs_file_init (void);
 void FatReadDirTest (uint8_t flag,char* FilePath);
-
+uint8_t load_setup(void);
 #endif /* __USER_FATFS_H */
